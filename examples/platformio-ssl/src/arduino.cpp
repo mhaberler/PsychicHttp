@@ -25,6 +25,7 @@
 #include <ESPmDNS.h>
 #include <PsychicHttp.h>
 #include <PsychicHttpsServer.h> //uncomment this to enable HTTPS / SSL
+#include "Esp.h"
 
 #ifndef WIFI_SSID
   #error "You need to enter your wifi credentials. Rename secret.h to _secret.h and enter your credentials there."
@@ -260,6 +261,8 @@ void setup()
       output["msg"] = "status";
       output["status"] = "success";
       output["millis"] = millis();
+      output["freeHeap"] = ESP.getFreeHeap();
+      output["usedPSRam"] = ESP.getPsramSize() - ESP.getFreePsram();
 
       //work with some params
       if (json.containsKey("foo"))
@@ -289,7 +292,9 @@ void setup()
       output["msg"] = "status";
       output["status"] = "success";
       output["millis"] = millis();
-
+      output["freeHeap"] = ESP.getFreeHeap();
+      output["usedPSRam"] = ESP.getPsramSize() - ESP.getFreePsram();
+      
       //work with some params
       if (request->hasParam("foo"))
       {
