@@ -19,7 +19,6 @@
 #include <ArduinoJson.h>
 #include <ESPmDNS.h>
 #include <esp_sntp.h>
-#include "_secret.h"
 #include <PsychicHttp.h>
 //#include <PsychicHttpsServer.h> //uncomment this to enable HTTPS / SSL
 
