@@ -252,12 +252,12 @@ void setup()
     server.on("/api", HTTP_POST, [](PsychicRequest *request)
     {
       //load our JSON request
-      StaticJsonDocument<1024> json;
+      JsonDocument json;
       String body = request->body();
       DeserializationError err = deserializeJson(json, body);
 
       //create our response json
-      StaticJsonDocument<128> output;
+      JsonDocument output;
       output["msg"] = "status";
       output["status"] = "success";
       output["millis"] = millis();
@@ -288,13 +288,13 @@ void setup()
     server.on("/api", HTTP_GET, [](PsychicRequest *request)
     {
       //create a response object
-      StaticJsonDocument<128> output;
+      JsonDocument output;
       output["msg"] = "status";
       output["status"] = "success";
       output["millis"] = millis();
       output["freeHeap"] = ESP.getFreeHeap();
       output["usedPSRam"] = ESP.getPsramSize() - ESP.getFreePsram();
-      
+
       //work with some params
       if (request->hasParam("foo"))
       {
