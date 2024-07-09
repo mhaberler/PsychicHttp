@@ -26,7 +26,9 @@
 #include <PsychicHttp.h>
 #include <PsychicHttpsServer.h> //uncomment this to enable HTTPS / SSL
 #include "Esp.h"
-
+#ifdef SVELTE_ESP32
+#include "svelteesp32.h"
+#endif
 #ifndef WIFI_SSID
   #error "You need to enter your wifi credentials. Rename secret.h to _secret.h and enter your credentials there."
 #endif
@@ -222,7 +224,9 @@ void setup()
     #else
       server.listen(80);
     #endif
-
+#ifdef SVELTE_ESP32
+    initSvelteStaticFiles(&server);
+#else
     //serve static files from LittleFS/www on / only to clients on same wifi network
     //this is where our /index.html file lives
     server.serveStatic("/", LittleFS, "/www/")->setFilter(ON_STA_FILTER);
@@ -247,6 +251,8 @@ void setup()
     server.onClose([](PsychicClient *client) {
       Serial.printf("[http] connection #%u closed from %s\n", client->socket(), client->localIP().toString());
     });
+
+
 
     //api - json message passed in as post body
     server.on("/api", HTTP_POST, [](PsychicRequest *request)
@@ -480,6 +486,7 @@ void setup()
       Serial.printf("[eventsource] connection #%u closed from %s\n", client->socket(), client->localIP().toString());
     });
     server.on("/events", &eventSource);
+    #endif
   }
 }
 
