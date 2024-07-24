@@ -10,7 +10,7 @@
   #error PsychicHttpsServer cannot be used unless HTTPD_WS_SUPPORT is enabled in esp-http-server component configuration
 #endif
 
-#define PSY_ENABLE_SSL //you can use this define in your code to enable/disable these features
+// #define PSY_ENABLE_SSL //you can use this define in your code to enable/disable these features
 
 class PsychicHttpsServer : public PsychicHttpServer
 {
