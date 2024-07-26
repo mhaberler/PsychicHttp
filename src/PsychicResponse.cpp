@@ -29,6 +29,11 @@ void PsychicResponse::addHeader(const char *field, const char *value)
   header.field =(char *)malloc(strlen(field)+1);
   header.value = (char *)malloc(strlen(value)+1);
 
+  if (header.field == NULL)
+    log_e("header.field == NULL");
+  if (header.value == NULL)
+    log_e("header.value == NULL");
+    
   strlcpy(header.field, field, strlen(field)+1);
   strlcpy(header.value, value, strlen(value)+1);
 
