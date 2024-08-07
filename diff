@@ -1,0 +1,236 @@
+diff -r -w src/PsychicClient.cpp svkit/PsychicHttp/src/PsychicClient.cpp
+5,6c5
+< PsychicClient::PsychicClient(httpd_handle_t server, int socket) :
+<     _server(server),
+---
+> PsychicClient::PsychicClient(httpd_handle_t server, int socket) : _server(server),
+9,10c8,9
+<     isNew(false)
+< {}
+---
+>     isNew(false) {
+> }
+65c64
+<     ESP_LOGI(PH_TAG, "Client Remote IP => %s", ipstr);
+---
+>     ESP_LOGV(PH_TAG, "Client Remote IP => %s", ipstr);
+diff -r -w src/PsychicHandler.cpp svkit/PsychicHttp/src/PsychicHandler.cpp
+10,11c10
+<     _authFailMsg(""),
+<     _subprotocol("")
+---
+>     _authFailMsg("")
+28,34d26
+< }
+< 
+< void PsychicHandler::setSubprotocol(const String& subprotocol) {
+<     this->_subprotocol = subprotocol;
+< }
+< const char* PsychicHandler::getSubprotocol() const {
+<     return _subprotocol.c_str();
+diff -r -w src/PsychicHandler.h svkit/PsychicHttp/src/PsychicHandler.h
+27,28d26
+<     String _subprotocol;
+< 
+33c31
+<     virtual ~PsychicHandler();
+---
+>     ~PsychicHandler();
+45,47d42
+< 
+<     void setSubprotocol(const String& subprotocol);
+<     const char* getSubprotocol() const;
+diff -r -w src/PsychicHttpServer.cpp svkit/PsychicHttp/src/PsychicHttpServer.cpp
+134,135c134
+<         .is_websocket = handler->isWebSocket(),
+<         .supported_subprotocol = handler->getSubprotocol()
+---
+>         .is_websocket = handler->isWebSocket()
+diff -r -w src/PsychicHttpServer.h svkit/PsychicHttp/src/PsychicHttpServer.h
+27c27
+<     virtual ~PsychicHttpServer();
+---
+>     ~PsychicHttpServer();
+diff -r -w src/PsychicHttpsServer.cpp svkit/PsychicHttp/src/PsychicHttpsServer.cpp
+3,4d2
+< #ifdef CONFIG_ESP_HTTPS_SERVER_ENABLE
+< 
+28,32d25
+< 
+< #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 2)
+<     this->ssl_config.servercert = (uint8_t *)cert;
+<     this->ssl_config.servercert_len = strlen(cert)+1;
+< #else
+35,36d27
+< #endif
+< 
+56,57d46
+< 
+< #endif // CONFIG_ESP_HTTPS_SERVER_ENABLE
+\ No newline at end of file
+diff -r -w src/PsychicHttpsServer.h svkit/PsychicHttp/src/PsychicHttpsServer.h
+4,5d3
+< #ifdef CONFIG_ESP_HTTPS_SERVER_ENABLE
+< 
+8a7
+> 
+33,34d31
+< 
+< #endif // CONFIG_ESP_HTTPS_SERVER_ENABLE
+\ No newline at end of file
+diff -r -w src/PsychicJson.cpp svkit/PsychicHttp/src/PsychicJson.cpp
+4,5c4
+< PsychicJsonResponse::PsychicJsonResponse(PsychicRequest *request, bool isArray, size_t maxJsonBufferSize) :
+<     PsychicResponse(request),
+---
+> PsychicJsonResponse::PsychicJsonResponse(PsychicRequest *request, bool isArray, size_t maxJsonBufferSize) : PsychicResponse(request),
+37c36
+<     DUMP(length);
+---
+>     // DUMP(length);
+45c44
+<     DUMP(buffer_size);
+---
+>     // DUMP(buffer_size);
+55c54
+<         TRACE();
+---
+>         // TRACE();
+86,89c85,86
+< PsychicJsonHandler::PsychicJsonHandler(size_t maxJsonBufferSize) :
+<     _onRequest(NULL),
+<     _maxJsonBufferSize(maxJsonBufferSize)
+< {};
+---
+> PsychicJsonHandler::PsychicJsonHandler(size_t maxJsonBufferSize) : _onRequest(NULL),
+>     _maxJsonBufferSize(maxJsonBufferSize) {};
+91,94c88,90
+< PsychicJsonHandler::PsychicJsonHandler(PsychicJsonRequestCallback onRequest, size_t maxJsonBufferSize) :
+<     _onRequest(onRequest),
+<     _maxJsonBufferSize(maxJsonBufferSize)
+< {}
+---
+> PsychicJsonHandler::PsychicJsonHandler(PsychicJsonRequestCallback onRequest, size_t maxJsonBufferSize) : _onRequest(onRequest),
+>     _maxJsonBufferSize(maxJsonBufferSize) {
+> }
+96,98c92
+< PsychicJsonHandler::PsychicJsonHandler() :
+<     _onRequest(NULL)
+< {};
+---
+> PsychicJsonHandler::PsychicJsonHandler() : _onRequest(NULL) {};
+100,102c94,95
+< PsychicJsonHandler::PsychicJsonHandler(PsychicJsonRequestCallback onRequest) :
+<     _onRequest(onRequest)
+< {}
+---
+> PsychicJsonHandler::PsychicJsonHandler(PsychicJsonRequestCallback onRequest) : _onRequest(onRequest) {
+> }
+diff -r -w src/PsychicRequest.cpp svkit/PsychicHttp/src/PsychicRequest.cpp
+5,7c5
+< 
+< PsychicRequest::PsychicRequest(PsychicHttpServer *server, httpd_req_t *req) :
+<     _server(server),
+---
+> PsychicRequest::PsychicRequest(PsychicHttpServer *server, httpd_req_t *req) : _server(server),
+256a255
+>         _query = "";
+273c272,273
+<         if (end < 0) end = params.length();
+---
+>         if (end < 0)
+>             end = params.length();
+275c275,276
+<         if (equal < 0 || equal > end) equal = end;
+---
+>         if (equal < 0 || equal > end)
+>             equal = end;
+393c394
+<             ESP_LOGD(PH_TAG, "Hash of user:realm:pass=%s", _H1.c_str());
+---
+>             ESP_LOGD(PH_TAG, "Hash of user:realm:pass=%s", _H1);
+406c407
+<             ESP_LOGD(PH_TAG, "Hash of GET:uri=%s", _H2.c_str());
+---
+>             ESP_LOGD(PH_TAG, "Hash of GET:uri=%s", _H2);
+413c414
+<             ESP_LOGD(PH_TAG, "The Proper response=%s", _responsecheck.c_str());
+---
+>             ESP_LOGD(PH_TAG, "The Proper response=%s", _responsecheck);
+435c436
+<         sprintf (buffer + (i*8), "%08lx", (unsigned long int)esp_random());
+---
+>         sprintf(buffer + (i * 8), "%08lx", esp_random());
+diff -r -w src/PsychicResponse.cpp svkit/PsychicHttp/src/PsychicResponse.cpp
+14c14
+<     //clean up our header variables.  we have to do this on desctruct since httpd_resp_send doesn't store copies
+---
+>     //clean up our header variables.  we have to do this since httpd_resp_send doesn't store copies
+23c23
+<     //these get freed after send by the destructor
+---
+>     //these get freed during send()
+117,126d116
+< 
+<     // DO NOT RELEASE HEADERS HERE... released in the PsychicResponse destructor after they have been sent.
+<     // httpd_resp_set_hdr just passes on the pointer, but its needed after this call.
+<     // clean up our header variables after send
+<     // for (HTTPHeader header : _headers)
+<     // {
+<     //   free(header.field);
+<     //   free(header.value);
+<     // }
+<     // _headers.clear();
+diff -r -w src/PsychicStreamResponse.cpp svkit/PsychicHttp/src/PsychicStreamResponse.cpp
+19c19
+<     snprintf(buf, sizeof (buf), "attachment; filename=\"%s\"", name.c_str());
+---
+>     snprintf(buf, sizeof (buf), "attachment; filename=\"%s\"", name);
+diff -r -w src/PsychicUploadHandler.cpp svkit/PsychicHttp/src/PsychicUploadHandler.cpp
+30c30
+<     _parsedLength = 0;
+---
+> 
+37c37
+<         sprintf(error, "File size must be less than %lu bytes!", request->server()->maxUploadSize);
+---
+>         sprintf(error, "File size must be less than %u bytes!", request->server()->maxUploadSize);
+diff -r -w src/PsychicWebHandler.cpp svkit/PsychicHttp/src/PsychicWebHandler.cpp
+27c27
+<         sprintf(error, "Request body must be less than %lu bytes!", request->server()->maxRequestBodySize);
+---
+>         sprintf(error, "Request body must be less than %u bytes!", request->server()->maxRequestBodySize);
+diff -r -w src/PsychicWebSocket.cpp svkit/PsychicHttp/src/PsychicWebSocket.cpp
+7,8c7
+< PsychicWebSocketRequest::PsychicWebSocketRequest(PsychicRequest *req) :
+<     PsychicRequest(req->server(), req->request()),
+---
+> PsychicWebSocketRequest::PsychicWebSocketRequest(PsychicRequest *req) : PsychicRequest(req->server(), req->request()),
+68,69c67
+< PsychicWebSocketHandler::PsychicWebSocketHandler() :
+<     PsychicHandler(),
+---
+> PsychicWebSocketHandler::PsychicWebSocketHandler() : PsychicHandler(),
+161c159
+<     ESP_LOGI(PH_TAG, "frame len is %d", ws_pkt.len);
+---
+>     ESP_LOGV(PH_TAG, "frame len is %d", ws_pkt.len);
+177c175
+<         ESP_LOGI(PH_TAG, "Got packet with message: %s", ws_pkt.payload);
+---
+>         ESP_LOGV(PH_TAG, "Got packet with message: %s", ws_pkt.payload);
+189,192c187,188
+<     ESP_LOGI(PH_TAG, "ws_handler: httpd_handle_t=%p, sockfd=%d, client_info:%d",
+<              request->server(),
+<              httpd_req_to_sockfd(request->request()),
+<              httpd_ws_get_fd_info(request->server()->server, httpd_req_to_sockfd(request->request())));
+---
+>     // ESP_LOGI(PH_TAG, "ws_handler: httpd_handle_t=%p, sockfd=%d, client_info:%d", request->server(),
+>     // httpd_req_to_sockfd(request->request()), httpd_ws_get_fd_info(request->server(), httpd_req_to_sockfd(request->request())));
+Only in src: TemplatePrinter.cpp
+Only in src: TemplatePrinter.h
+diff -r -w src/async_worker.cpp svkit/PsychicHttp/src/async_worker.cpp
+164c164
+<     memcpy((void *)async, (void *)r, sizeof(httpd_req_t));
+---
+>     memcpy(async, r, sizeof(httpd_req_t));
