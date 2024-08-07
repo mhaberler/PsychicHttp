@@ -6,8 +6,7 @@
 
 class PsychicRequest;
 
-class PsychicResponse
-{
+class PsychicResponse {
   protected:
     PsychicRequest *_request;
 
@@ -24,8 +23,12 @@ class PsychicResponse
     void setCode(int code);
 
     void setContentType(const char *contentType);
-    void setContentLength(int64_t contentLength) { _contentLength = contentLength; }
-    int64_t getContentLength(int64_t contentLength) { return _contentLength; }
+    void setContentLength(int64_t contentLength) {
+        _contentLength = contentLength;
+    }
+    int64_t getContentLength(int64_t contentLength) {
+        return _contentLength;
+    }
 
     void addHeader(const char *field, const char *value);
 

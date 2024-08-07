@@ -12,7 +12,7 @@ class PsychicHttpServer;
 */
 
 class PsychicHandler {
-  friend PsychicEndpoint;
+    friend PsychicEndpoint;
 
   protected:
     PsychicRequestFilterFunction _filter;
@@ -37,7 +37,9 @@ class PsychicHandler {
     bool needsAuthentication(PsychicRequest *request);
     esp_err_t authenticate(PsychicRequest *request);
 
-    virtual bool isWebSocket() { return false; };
+    virtual bool isWebSocket() {
+        return false;
+    };
 
     PsychicClient * checkForNewClient(PsychicClient *client);
     void checkForClosedClient(PsychicClient *client);
@@ -50,11 +52,15 @@ class PsychicHandler {
     virtual void closeCallback(PsychicClient *client) {};
 
     bool hasClient(PsychicClient *client);
-    int count() { return _clients.size(); };
+    int count() {
+        return _clients.size();
+    };
     const std::list<PsychicClient*>& getClientList();
 
     //derived classes must implement these functions
-    virtual bool canHandle(PsychicRequest *request) { return true; };
+    virtual bool canHandle(PsychicRequest *request) {
+        return true;
+    };
     virtual esp_err_t handleRequest(PsychicRequest *request) = 0;
 };
 

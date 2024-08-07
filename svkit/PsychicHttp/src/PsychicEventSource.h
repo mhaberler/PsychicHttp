@@ -33,7 +33,7 @@ class PsychicResponse;
 typedef std::function<void(PsychicEventSourceClient *client)> PsychicEventSourceClientCallback;
 
 class PsychicEventSourceClient : public PsychicClient {
-  friend PsychicEventSource;
+    friend PsychicEventSource;
 
   protected:
     uint32_t _lastId;
@@ -42,7 +42,9 @@ class PsychicEventSourceClient : public PsychicClient {
     PsychicEventSourceClient(PsychicClient *client);
     ~PsychicEventSourceClient();
 
-    uint32_t lastId() const { return _lastId; }
+    uint32_t lastId() const {
+        return _lastId;
+    }
     void send(const char *message, const char *event=NULL, uint32_t id=0, uint32_t reconnect=0);
     void sendEvent(const char *event);
 };

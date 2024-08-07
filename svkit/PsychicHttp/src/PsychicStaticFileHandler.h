@@ -8,8 +8,8 @@
 #include "PsychicFileResponse.h"
 
 class PsychicStaticFileHandler : public PsychicWebHandler {
-  using File = fs::File;
-  using FS = fs::FS;
+    using File = fs::File;
+    using FS = fs::FS;
   private:
     bool _getFile(PsychicRequest *request);
     bool _fileExists(const String& path);
