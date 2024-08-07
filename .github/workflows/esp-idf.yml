@@ -1,4 +1,4 @@
-name: ESP-IDF v4.4
+name: ESP-IDF v4.4 and v5.1.4
 
 on:
   push:
