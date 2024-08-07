@@ -6,10 +6,9 @@
 
 class PsychicRequest;
 
-class PsychicFileResponse: public PsychicResponse
-{
-  using File = fs::File;
-  using FS = fs::FS;
+class PsychicFileResponse: public PsychicResponse {
+    using File = fs::File;
+    using FS = fs::FS;
   private:
     File _content;
     void _setContentType(const String& path);

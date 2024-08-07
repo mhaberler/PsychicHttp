@@ -4,8 +4,7 @@
 #include "PsychicResponse.h"
 #include <Print.h>
 
-class ChunkPrinter : public Print
-{
+class ChunkPrinter : public Print {
   private:
     PsychicResponse *_response;
     uint8_t *_buffer;
@@ -15,7 +14,7 @@ class ChunkPrinter : public Print
   public:
     ChunkPrinter(PsychicResponse *response, uint8_t *buffer, size_t len);
     ~ChunkPrinter();
-  
+
     size_t write(uint8_t c) override;
     size_t write(const uint8_t *buffer, size_t size) override;
 

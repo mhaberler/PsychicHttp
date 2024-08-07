@@ -1,7 +1,6 @@
 #include "async_worker.h"
 
-bool is_on_async_worker_thread(void)
-{
+bool is_on_async_worker_thread(void) {
     // is our handle one of the known async handles?
     TaskHandle_t handle = xTaskGetCurrentTaskHandle();
     for (int i = 0; i < ASYNC_WORKER_COUNT; i++) {
@@ -13,8 +12,7 @@ bool is_on_async_worker_thread(void)
 }
 
 // Submit an HTTP req to the async worker queue
-esp_err_t submit_async_req(httpd_req_t *req, httpd_req_handler_t handler)
-{
+esp_err_t submit_async_req(httpd_req_t *req, httpd_req_handler_t handler) {
     // must create a copy of the request that we own
     httpd_req_t* copy = NULL;
     esp_err_t err = httpd_req_async_handler_begin(req, &copy);
@@ -51,8 +49,7 @@ esp_err_t submit_async_req(httpd_req_t *req, httpd_req_handler_t handler)
     return ESP_OK;
 }
 
-void async_req_worker_task(void *p)
-{
+void async_req_worker_task(void *p) {
     ESP_LOGI(PH_TAG, "starting async req task worker");
 
     while (true) {
@@ -82,13 +79,12 @@ void async_req_worker_task(void *p)
     vTaskDelete(NULL);
 }
 
-void start_async_req_workers(void)
-{
+void start_async_req_workers(void) {
 
     // counting semaphore keeps track of available workers
     worker_ready_count = xSemaphoreCreateCounting(
-        ASYNC_WORKER_COUNT,  // Max Count
-        0); // Initial Count
+                             ASYNC_WORKER_COUNT,  // Max Count
+                             0); // Initial Count
     if (worker_ready_count == NULL) {
         ESP_LOGE(PH_TAG, "Failed to create workers counting Semaphore");
         return;
@@ -96,7 +92,7 @@ void start_async_req_workers(void)
 
     // create queue
     async_req_queue = xQueueCreate(1, sizeof(httpd_async_req_t));
-    if (async_req_queue == NULL){
+    if (async_req_queue == NULL) {
         ESP_LOGE(PH_TAG, "Failed to create async_req_queue");
         vSemaphoreDelete(worker_ready_count);
         return;
@@ -106,10 +102,10 @@ void start_async_req_workers(void)
     for (int i = 0; i < ASYNC_WORKER_COUNT; i++) {
 
         bool success = xTaskCreate(async_req_worker_task, "async_req_worker",
-                                    ASYNC_WORKER_TASK_STACK_SIZE, // stack size
-                                    (void *)0, // argument
-                                    ASYNC_WORKER_TASK_PRIORITY, // priority
-                                    &worker_handles[i]);
+                                   ASYNC_WORKER_TASK_STACK_SIZE, // stack size
+                                   (void *)0, // argument
+                                   ASYNC_WORKER_TASK_PRIORITY, // priority
+                                   &worker_handles[i]);
 
         if (!success) {
             ESP_LOGE(PH_TAG, "Failed to start asyncReqWorker");
@@ -119,9 +115,9 @@ void start_async_req_workers(void)
 }
 
 /****
- * 
+ *
  * This code is backported from the 5.1.x branch
- * 
+ *
 ****/
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
@@ -155,8 +151,7 @@ struct httpd_req_aux {
 #endif
 };
 
-esp_err_t httpd_req_async_handler_begin(httpd_req_t *r, httpd_req_t **out)
-{
+esp_err_t httpd_req_async_handler_begin(httpd_req_t *r, httpd_req_t **out) {
     if (r == NULL || out == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
@@ -179,15 +174,14 @@ esp_err_t httpd_req_async_handler_begin(httpd_req_t *r, httpd_req_t **out)
     // not available in 4.4.x
     // mark socket as "in use"
     // struct httpd_req_aux *ra = r->aux;
-    //ra->sd->for_async_req = true; 
+    //ra->sd->for_async_req = true;
 
     *out = async;
 
     return ESP_OK;
 }
 
-esp_err_t httpd_req_async_handler_complete(httpd_req_t *r)
-{
+esp_err_t httpd_req_async_handler_complete(httpd_req_t *r) {
     if (r == NULL) {
         return ESP_ERR_INVALID_ARG;
     }

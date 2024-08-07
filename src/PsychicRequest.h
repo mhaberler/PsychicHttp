@@ -12,13 +12,13 @@ typedef std::map<String, String> SessionData;
 enum Disposition { NONE, INLINE, ATTACHMENT, FORM_DATA};
 
 struct ContentDisposition {
-  Disposition disposition;
-  String filename;
-  String name;
+    Disposition disposition;
+    String filename;
+    String name;
 };
 
 class PsychicRequest {
-  friend PsychicHttpServer;
+    friend PsychicHttpServer;
 
   protected:
     PsychicHttpServer *_server;
@@ -75,8 +75,12 @@ class PsychicRequest {
     const String& body();       // returns the body of the request
     const ContentDisposition getContentDisposition();
 
-    const String& queryString() { return query(); }  //compatability function.  same as query()
-    const String& url() { return uri(); }            //compatability function.  same as uri()
+    const String& queryString() {
+        return query();    //compatability function.  same as query()
+    }
+    const String& url() {
+        return uri();    //compatability function.  same as uri()
+    }
 
     void loadParams();
     PsychicWebParameter * addParam(PsychicWebParameter *param);

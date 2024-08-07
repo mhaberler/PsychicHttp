@@ -22,7 +22,9 @@ class PsychicClient {
 
     bool isNew = false;
 
-    bool operator==(PsychicClient& rhs) const { return _socket == rhs.socket(); }
+    bool operator==(PsychicClient& rhs) const {
+        return _socket == rhs.socket();
+    }
 
     httpd_handle_t server();
     int socket();
