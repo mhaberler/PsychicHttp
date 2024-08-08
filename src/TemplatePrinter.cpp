@@ -12,13 +12,11 @@ Written by Christopher Andrews (https://github.com/Chris--A)
 
 #include "TemplatePrinter.h"
 
-void TemplatePrinter::resetParam(bool flush)
-{
-    if(flush && _inParam)
-    {
+void TemplatePrinter::resetParam(bool flush) {
+    if (flush && _inParam) {
         _stream.write(_delimiter);
 
-        if(_paramPos)
+        if (_paramPos)
             _stream.print(_paramBuffer);
     }
 
@@ -28,85 +26,64 @@ void TemplatePrinter::resetParam(bool flush)
 }
 
 
-void TemplatePrinter::flush()
-{
+void TemplatePrinter::flush() {
     resetParam(true);
     _stream.flush();
 }
 
-size_t TemplatePrinter::write(uint8_t data)
-{
+size_t TemplatePrinter::write(uint8_t data) {
 
-    if(data == _delimiter)
-    {
+    if (data == _delimiter) {
 
         // End of parameter, send to callback
-        if(_inParam)
-        {
+        if (_inParam) {
 
             // On false, return the parameter place holder as is: not a parameter
             // Bug fix: ignore parameters that are zero length.
-            if(!_paramPos || !_cb(_stream, _paramBuffer))
-            {
+            if (!_paramPos || !_cb(_stream, _paramBuffer)) {
                 resetParam(true);
                 _stream.write(data);
-            }
-            else
-            {
+            } else {
                 resetParam(false);
             }
 
             // Start collecting parameter
-        }
-        else
-        {
+        } else {
             _inParam = true;
         }
-    }
-    else
-    {
+    } else {
 
         // Are we collecting
-        if(_inParam)
-        {
+        if (_inParam) {
 
             // Is param still valid
-            if(isalnum(data) || data == '_')
-            {
+            if (isalnum(data) || data == '_') {
 
                 // Total param len must be 63, 1 for null.
-                if(_paramPos < sizeof(_paramBuffer) - 1)
-                {
+                if (_paramPos < sizeof(_paramBuffer) - 1) {
                     _paramBuffer[_paramPos++] = data;
 
                     // Not a valid param
-                }
-                else
-                {
+                } else {
                     resetParam(true);
                 }
-            }
-            else
-            {
+            } else {
                 resetParam(true);
                 _stream.write(data);
             }
 
             // Just output
-        }
-        else
-        {
+        } else {
             _stream.write(data);
         }
     }
     return 1;
 }
 
-size_t TemplatePrinter::copyFrom(Stream &stream)
-{
+size_t TemplatePrinter::copyFrom(Stream &stream) {
     size_t count = 0;
 
-    while(stream.available())
+    while (stream.available())
         count += this->write(stream.read());
 
     return count;

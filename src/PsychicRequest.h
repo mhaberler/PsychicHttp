@@ -11,18 +11,16 @@ typedef std::map<String, String> SessionData;
 
 enum Disposition { NONE, INLINE, ATTACHMENT, FORM_DATA};
 
-struct ContentDisposition
-{
+struct ContentDisposition {
     Disposition disposition;
     String filename;
     String name;
 };
 
-class PsychicRequest
-{
+class PsychicRequest {
     friend PsychicHttpServer;
 
-protected:
+  protected:
     PsychicHttpServer *_server;
     httpd_req_t *_req;
     SessionData *_session;
@@ -42,7 +40,7 @@ protected:
     const String _extractParam(const String& authReq, const String& param, const char delimit);
     const String _getRandomHexString();
 
-public:
+  public:
     PsychicRequest(PsychicHttpServer *server, httpd_req_t *req);
     virtual ~PsychicRequest();
 
@@ -77,12 +75,10 @@ public:
     const String& body();       // returns the body of the request
     const ContentDisposition getContentDisposition();
 
-    const String& queryString()
-    {
+    const String& queryString() {
         return query();    //compatability function.  same as query()
     }
-    const String& url()
-    {
+    const String& url() {
         return uri();    //compatability function.  same as uri()
     }
 

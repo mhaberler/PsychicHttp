@@ -5,8 +5,7 @@
 /*************************************/
 
 PsychicStaticFileHandler::PsychicStaticFileHandler(const char* uri, FS& fs, const char* path, const char* cache_control)
-    : _fs(fs), _uri(uri), _path(path), _default_file("index.html"), _cache_control(cache_control), _last_modified("")
-{
+    : _fs(fs), _uri(uri), _path(path), _default_file("index.html"), _cache_control(cache_control), _last_modified("") {
     // Ensure leading '/'
     if (_uri.length() == 0 || _uri[0] != '/') _uri = "/" + _uri;
     if (_path.length() == 0 || _path[0] != '/') _path = "/" + _path;
@@ -25,40 +24,34 @@ PsychicStaticFileHandler::PsychicStaticFileHandler(const char* uri, FS& fs, cons
     _gzipStats = 0xF8;
 }
 
-PsychicStaticFileHandler& PsychicStaticFileHandler::setIsDir(bool isDir)
-{
+PsychicStaticFileHandler& PsychicStaticFileHandler::setIsDir(bool isDir) {
     _isDir = isDir;
     return *this;
 }
 
-PsychicStaticFileHandler& PsychicStaticFileHandler::setDefaultFile(const char* filename)
-{
+PsychicStaticFileHandler& PsychicStaticFileHandler::setDefaultFile(const char* filename) {
     _default_file = String(filename);
     return *this;
 }
 
-PsychicStaticFileHandler& PsychicStaticFileHandler::setCacheControl(const char* cache_control)
-{
+PsychicStaticFileHandler& PsychicStaticFileHandler::setCacheControl(const char* cache_control) {
     _cache_control = String(cache_control);
     return *this;
 }
 
-PsychicStaticFileHandler& PsychicStaticFileHandler::setLastModified(const char* last_modified)
-{
+PsychicStaticFileHandler& PsychicStaticFileHandler::setLastModified(const char* last_modified) {
     _last_modified = String(last_modified);
     return *this;
 }
 
-PsychicStaticFileHandler& PsychicStaticFileHandler::setLastModified(struct tm* last_modified)
-{
+PsychicStaticFileHandler& PsychicStaticFileHandler::setLastModified(struct tm* last_modified) {
     char result[30];
     strftime (result,30,"%a, %d %b %Y %H:%M:%S %Z", last_modified);
     return setLastModified((const char *)result);
 }
 
-bool PsychicStaticFileHandler::canHandle(PsychicRequest *request)
-{
-    if(request->method() != HTTP_GET || !request->uri().startsWith(_uri) )
+bool PsychicStaticFileHandler::canHandle(PsychicRequest *request) {
+    if (request->method() != HTTP_GET || !request->uri().startsWith(_uri) )
         return false;
 
     if (_getFile(request))
@@ -67,8 +60,7 @@ bool PsychicStaticFileHandler::canHandle(PsychicRequest *request)
     return false;
 }
 
-bool PsychicStaticFileHandler::_getFile(PsychicRequest *request)
-{
+bool PsychicStaticFileHandler::_getFile(PsychicRequest *request) {
     // Remove the found uri
     String path = request->uri().substring(_uri.length());
 
@@ -95,29 +87,23 @@ bool PsychicStaticFileHandler::_getFile(PsychicRequest *request)
 
 #define FILE_IS_REAL(f) (f == true && !f.isDirectory())
 
-bool PsychicStaticFileHandler::_fileExists(const String& path)
-{
+bool PsychicStaticFileHandler::_fileExists(const String& path) {
     bool fileFound = false;
     bool gzipFound = false;
 
     String gzip = path + ".gz";
 
-    if (_gzipFirst)
-    {
+    if (_gzipFirst) {
         _file = _fs.open(gzip, "r");
         gzipFound = FILE_IS_REAL(_file);
-        if (!gzipFound)
-        {
+        if (!gzipFound) {
             _file = _fs.open(path, "r");
             fileFound = FILE_IS_REAL(_file);
         }
-    }
-    else
-    {
+    } else {
         _file = _fs.open(path, "r");
         fileFound = FILE_IS_REAL(_file);
-        if (!fileFound)
-        {
+        if (!fileFound) {
             _file = _fs.open(gzip, "r");
             gzipFound = FILE_IS_REAL(_file);
         }
@@ -125,8 +111,7 @@ bool PsychicStaticFileHandler::_fileExists(const String& path)
 
     bool found = fileFound || gzipFound;
 
-    if (found)
-    {
+    if (found) {
         _filename = path;
 
         // Calculate gzip statistic
@@ -139,32 +124,27 @@ bool PsychicStaticFileHandler::_fileExists(const String& path)
     return found;
 }
 
-uint8_t PsychicStaticFileHandler::_countBits(const uint8_t value) const
-{
+uint8_t PsychicStaticFileHandler::_countBits(const uint8_t value) const {
     uint8_t w = value;
     uint8_t n;
     for (n=0; w!=0; n++) w&=w-1;
     return n;
 }
 
-esp_err_t PsychicStaticFileHandler::handleRequest(PsychicRequest *request)
-{
-    if (_file == true)
-    {
+esp_err_t PsychicStaticFileHandler::handleRequest(PsychicRequest *request) {
+    if (_file == true) {
         DUMP(_filename);
 
         //is it not modified?
         String etag = String(_file.size());
-        if (_last_modified.length() && _last_modified == request->header("If-Modified-Since"))
-        {
+        if (_last_modified.length() && _last_modified == request->header("If-Modified-Since")) {
             DUMP("Last Modified Hit");
             TRACE();
             _file.close();
             request->reply(304); // Not modified
         }
         //does our Etag match?
-        else if (_cache_control.length() && request->hasHeader("If-None-Match") && request->header("If-None-Match").equals(etag))
-        {
+        else if (_cache_control.length() && request->hasHeader("If-None-Match") && request->header("If-None-Match").equals(etag)) {
             DUMP("Etag Hit");
             DUMP(etag);
             DUMP(_cache_control);
@@ -178,8 +158,7 @@ esp_err_t PsychicStaticFileHandler::handleRequest(PsychicRequest *request)
             response.send();
         }
         //nope, send them the full file.
-        else
-        {
+        else {
             DUMP("No cache hit");
             DUMP(_last_modified);
             DUMP(_cache_control);
@@ -188,17 +167,14 @@ esp_err_t PsychicStaticFileHandler::handleRequest(PsychicRequest *request)
 
             if (_last_modified.length())
                 response.addHeader("Last-Modified", _last_modified.c_str());
-            if (_cache_control.length())
-            {
+            if (_cache_control.length()) {
                 response.addHeader("Cache-Control", _cache_control.c_str());
                 response.addHeader("ETag", etag.c_str());
             }
 
             return response.send();
         }
-    }
-    else
-    {
+    } else {
         return request->reply(404);
     }
 

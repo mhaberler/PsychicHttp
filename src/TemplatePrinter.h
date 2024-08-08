@@ -21,9 +21,8 @@ class TemplatePrinter;
 typedef std::function<bool(Print &output, const char *parameter)> TemplateCallback;
 typedef std::function<void(TemplatePrinter &printer)> TemplateSourceCallback;
 
-class TemplatePrinter : public Print
-{
-private:
+class TemplatePrinter : public Print {
+  private:
     bool _inParam;
     char _paramBuffer[64];
     uint8_t _paramPos;
@@ -33,21 +32,18 @@ private:
 
     void resetParam(bool flush);
 
-public:
+  public:
     using Print::write;
 
-    static void start(Print &stream, TemplateCallback cb, TemplateSourceCallback entry)
-    {
+    static void start(Print &stream, TemplateCallback cb, TemplateSourceCallback entry) {
         TemplatePrinter printer(stream, cb);
         entry(printer);
     }
 
-    TemplatePrinter(Print &stream, TemplateCallback cb, const char delimeter = '%') : _stream(stream), _cb(cb), _delimiter(delimeter)
-    {
+    TemplatePrinter(Print &stream, TemplateCallback cb, const char delimeter = '%') : _stream(stream), _cb(cb), _delimiter(delimeter) {
         resetParam(false);
     }
-    ~TemplatePrinter()
-    {
+    ~TemplatePrinter() {
         flush();
     }
 

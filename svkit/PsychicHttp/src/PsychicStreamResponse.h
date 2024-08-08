@@ -7,12 +7,11 @@
 
 class PsychicRequest;
 
-class PsychicStreamResponse : public PsychicResponse, public Print
-{
-private:
+class PsychicStreamResponse : public PsychicResponse, public Print {
+  private:
     ChunkPrinter *_printer;
     uint8_t *_buffer;
-public:
+  public:
 
     PsychicStreamResponse(PsychicRequest *request, const String& contentType);
     PsychicStreamResponse(PsychicRequest *request, const String& contentType, const String& name); //Download

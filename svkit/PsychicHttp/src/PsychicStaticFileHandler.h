@@ -7,15 +7,14 @@
 #include "PsychicResponse.h"
 #include "PsychicFileResponse.h"
 
-class PsychicStaticFileHandler : public PsychicWebHandler
-{
+class PsychicStaticFileHandler : public PsychicWebHandler {
     using File = fs::File;
     using FS = fs::FS;
-private:
+  private:
     bool _getFile(PsychicRequest *request);
     bool _fileExists(const String& path);
     uint8_t _countBits(const uint8_t value) const;
-protected:
+  protected:
     FS _fs;
     File _file;
     String _filename;
@@ -27,7 +26,7 @@ protected:
     bool _isDir;
     bool _gzipFirst;
     uint8_t _gzipStats;
-public:
+  public:
     PsychicStaticFileHandler(const char* uri, FS& fs, const char* path, const char* cache_control);
     bool canHandle(PsychicRequest *request) override;
     esp_err_t handleRequest(PsychicRequest *request) override;

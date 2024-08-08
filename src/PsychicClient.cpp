@@ -9,39 +9,33 @@ PsychicClient::PsychicClient(httpd_handle_t server, int socket) :
     isNew(false)
 {}
 
-PsychicClient::~PsychicClient()
-{
+PsychicClient::~PsychicClient() {
 }
 
-httpd_handle_t PsychicClient::server()
-{
+httpd_handle_t PsychicClient::server() {
     return _server;
 }
 
-int PsychicClient::socket()
-{
+int PsychicClient::socket() {
     return _socket;
 }
 
 // I'm not sure this is entirely safe to call.  I was having issues with race conditions when highly loaded using this.
-esp_err_t PsychicClient::close()
-{
+esp_err_t PsychicClient::close() {
     esp_err_t err = httpd_sess_trigger_close(_server, _socket);
     //PsychicHttpServer::closeCallback(_server, _socket); // call this immediately so the client is taken off the list.
 
     return err;
 }
 
-IPAddress PsychicClient::localIP()
-{
+IPAddress PsychicClient::localIP() {
     IPAddress address(0,0,0,0);
 
     char ipstr[INET6_ADDRSTRLEN];
     struct sockaddr_in6 addr;   // esp_http_server uses IPv6 addressing
     socklen_t addr_size = sizeof(addr);
 
-    if (getsockname(_socket, (struct sockaddr *)&addr, &addr_size) < 0)
-    {
+    if (getsockname(_socket, (struct sockaddr *)&addr, &addr_size) < 0) {
         ESP_LOGE(PH_TAG, "Error getting client IP");
         return address;
     }
@@ -54,16 +48,14 @@ IPAddress PsychicClient::localIP()
     return address;
 }
 
-IPAddress PsychicClient::remoteIP()
-{
+IPAddress PsychicClient::remoteIP() {
     IPAddress address(0,0,0,0);
 
     char ipstr[INET6_ADDRSTRLEN];
     struct sockaddr_in6 addr;   // esp_http_server uses IPv6 addressing
     socklen_t addr_size = sizeof(addr);
 
-    if (getpeername(_socket, (struct sockaddr *)&addr, &addr_size) < 0)
-    {
+    if (getpeername(_socket, (struct sockaddr *)&addr, &addr_size) < 0) {
         ESP_LOGE(PH_TAG, "Error getting client IP");
         return address;
     }

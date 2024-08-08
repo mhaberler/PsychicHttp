@@ -20,8 +20,7 @@ static TaskHandle_t worker_handles[ASYNC_WORKER_COUNT];
 
 typedef esp_err_t (*httpd_req_handler_t)(httpd_req_t *req);
 
-typedef struct
-{
+typedef struct {
     httpd_req_t* req;
     httpd_req_handler_t handler;
 } httpd_async_req_t;

@@ -32,32 +32,29 @@ class PsychicResponse;
 
 typedef std::function<void(PsychicEventSourceClient *client)> PsychicEventSourceClientCallback;
 
-class PsychicEventSourceClient : public PsychicClient
-{
+class PsychicEventSourceClient : public PsychicClient {
     friend PsychicEventSource;
 
-protected:
+  protected:
     uint32_t _lastId;
 
-public:
+  public:
     PsychicEventSourceClient(PsychicClient *client);
     ~PsychicEventSourceClient();
 
-    uint32_t lastId() const
-    {
+    uint32_t lastId() const {
         return _lastId;
     }
     void send(const char *message, const char *event=NULL, uint32_t id=0, uint32_t reconnect=0);
     void sendEvent(const char *event);
 };
 
-class PsychicEventSource : public PsychicHandler
-{
-private:
+class PsychicEventSource : public PsychicHandler {
+  private:
     PsychicEventSourceClientCallback _onOpen;
     PsychicEventSourceClientCallback _onClose;
 
-public:
+  public:
     PsychicEventSource();
     ~PsychicEventSource();
 
@@ -76,9 +73,8 @@ public:
     void send(const char *message, const char *event=NULL, uint32_t id=0, uint32_t reconnect=0);
 };
 
-class PsychicEventSourceResponse: public PsychicResponse
-{
-public:
+class PsychicEventSourceResponse: public PsychicResponse {
+  public:
     PsychicEventSourceResponse(PsychicRequest *request);
     virtual esp_err_t send() override;
 };

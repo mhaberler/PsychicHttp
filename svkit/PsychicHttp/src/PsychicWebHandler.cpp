@@ -8,21 +8,18 @@ PsychicWebHandler::PsychicWebHandler() :
 {}
 PsychicWebHandler::~PsychicWebHandler() {}
 
-bool PsychicWebHandler::canHandle(PsychicRequest *request)
-{
+bool PsychicWebHandler::canHandle(PsychicRequest *request) {
     return true;
 }
 
-esp_err_t PsychicWebHandler::handleRequest(PsychicRequest *request)
-{
+esp_err_t PsychicWebHandler::handleRequest(PsychicRequest *request) {
     //lookup our client
     PsychicClient *client = checkForNewClient(request->client());
     if (client->isNew)
         openCallback(client);
 
     /* Request body cannot be larger than a limit */
-    if (request->contentLength() > request->server()->maxRequestBodySize)
-    {
+    if (request->contentLength() > request->server()->maxRequestBodySize) {
         ESP_LOGE(PH_TAG, "Request body too large : %d bytes", request->contentLength());
 
         /* Respond with 400 Bad Request */
@@ -49,32 +46,27 @@ esp_err_t PsychicWebHandler::handleRequest(PsychicRequest *request)
     return err;
 }
 
-PsychicWebHandler * PsychicWebHandler::onRequest(PsychicHttpRequestCallback fn)
-{
+PsychicWebHandler * PsychicWebHandler::onRequest(PsychicHttpRequestCallback fn) {
     _requestCallback = fn;
     return this;
 }
 
-void PsychicWebHandler::openCallback(PsychicClient *client)
-{
+void PsychicWebHandler::openCallback(PsychicClient *client) {
     if (_onOpen != NULL)
         _onOpen(client);
 }
 
-void PsychicWebHandler::closeCallback(PsychicClient *client)
-{
+void PsychicWebHandler::closeCallback(PsychicClient *client) {
     if (_onClose != NULL)
         _onClose(getClient(client));
 }
 
-PsychicWebHandler * PsychicWebHandler::onOpen(PsychicClientCallback fn)
-{
+PsychicWebHandler * PsychicWebHandler::onOpen(PsychicClientCallback fn) {
     _onOpen = fn;
     return this;
 }
 
-PsychicWebHandler * PsychicWebHandler::onClose(PsychicClientCallback fn)
-{
+PsychicWebHandler * PsychicWebHandler::onClose(PsychicClientCallback fn) {
     _onClose = fn;
     return this;
 }

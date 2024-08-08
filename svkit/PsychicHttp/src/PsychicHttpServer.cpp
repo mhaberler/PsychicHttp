@@ -9,8 +9,7 @@
 
 PsychicHttpServer::PsychicHttpServer() :
     _onOpen(NULL),
-    _onClose(NULL)
-{
+    _onClose(NULL) {
     maxRequestBodySize = MAX_REQUEST_BODY_SIZE;
     maxUploadSize = MAX_UPLOAD_SIZE;
 
@@ -37,39 +36,35 @@ PsychicHttpServer::PsychicHttpServer() :
 #endif
 }
 
-PsychicHttpServer::~PsychicHttpServer()
-{
+PsychicHttpServer::~PsychicHttpServer() {
     for (auto *client : _clients)
-        delete(client);
+        delete (client);
     _clients.clear();
 
     for (auto *endpoint : _endpoints)
-        delete(endpoint);
+        delete (endpoint);
     _endpoints.clear();
 
     for (auto *handler : _handlers)
-        delete(handler);
+        delete (handler);
     _handlers.clear();
 
     delete defaultEndpoint;
 }
 
-void PsychicHttpServer::destroy(void *ctx)
-{
+void PsychicHttpServer::destroy(void *ctx) {
     PsychicHttpServer *temp = (PsychicHttpServer *)ctx;
     delete temp;
 }
 
-esp_err_t PsychicHttpServer::listen(uint16_t port)
-{
+esp_err_t PsychicHttpServer::listen(uint16_t port) {
     this->_use_ssl = false;
     this->config.server_port = port;
 
     return this->_start();
 }
 
-esp_err_t PsychicHttpServer::_start()
-{
+esp_err_t PsychicHttpServer::_start() {
     esp_err_t ret;
 
 #ifdef ENABLE_ASYNC
@@ -79,8 +74,7 @@ esp_err_t PsychicHttpServer::_start()
 
     //fire it up.
     ret = _startServer();
-    if (ret != ESP_OK)
-    {
+    if (ret != ESP_OK) {
         ESP_LOGE(PH_TAG, "Server start failed (%s)", esp_err_to_name(ret));
         return ret;
     }
@@ -93,46 +87,38 @@ esp_err_t PsychicHttpServer::_start()
     return ret;
 }
 
-esp_err_t PsychicHttpServer::_startServer()
-{
+esp_err_t PsychicHttpServer::_startServer() {
     return httpd_start(&this->server, &this->config);
 }
 
-void PsychicHttpServer::stop()
-{
+void PsychicHttpServer::stop() {
     httpd_stop(this->server);
 }
 
-PsychicHandler& PsychicHttpServer::addHandler(PsychicHandler* handler)
-{
+PsychicHandler& PsychicHttpServer::addHandler(PsychicHandler* handler) {
     _handlers.push_back(handler);
     return *handler;
 }
 
-void PsychicHttpServer::removeHandler(PsychicHandler *handler)
-{
+void PsychicHttpServer::removeHandler(PsychicHandler *handler) {
     _handlers.remove(handler);
 }
 
-PsychicEndpoint* PsychicHttpServer::on(const char* uri)
-{
+PsychicEndpoint* PsychicHttpServer::on(const char* uri) {
     return on(uri, HTTP_GET);
 }
 
-PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method)
-{
+PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method) {
     PsychicWebHandler *handler = new PsychicWebHandler();
 
     return on(uri, method, handler);
 }
 
-PsychicEndpoint* PsychicHttpServer::on(const char* uri, PsychicHandler *handler)
-{
+PsychicEndpoint* PsychicHttpServer::on(const char* uri, PsychicHandler *handler) {
     return on(uri, HTTP_GET, handler);
 }
 
-PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, PsychicHandler *handler)
-{
+PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, PsychicHandler *handler) {
     //make our endpoint
     PsychicEndpoint *endpoint = new PsychicEndpoint(this, method, uri);
 
@@ -140,8 +126,7 @@ PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, Psyc
     endpoint->setHandler(handler);
 
     // URI handler structure
-    httpd_uri_t my_uri
-    {
+    httpd_uri_t my_uri {
         .uri      = uri,
         .method   = method,
         .handler  = PsychicEndpoint::requestCallback,
@@ -160,13 +145,11 @@ PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, Psyc
     return endpoint;
 }
 
-PsychicEndpoint* PsychicHttpServer::on(const char* uri, PsychicHttpRequestCallback fn)
-{
+PsychicEndpoint* PsychicHttpServer::on(const char* uri, PsychicHttpRequestCallback fn) {
     return on(uri, HTTP_GET, fn);
 }
 
-PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, PsychicHttpRequestCallback fn)
-{
+PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, PsychicHttpRequestCallback fn) {
     //these basic requests need a basic web handler
     PsychicWebHandler *handler = new PsychicWebHandler();
     handler->onRequest(fn);
@@ -174,13 +157,11 @@ PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, Psyc
     return on(uri, method, handler);
 }
 
-PsychicEndpoint* PsychicHttpServer::on(const char* uri, PsychicJsonRequestCallback fn)
-{
+PsychicEndpoint* PsychicHttpServer::on(const char* uri, PsychicJsonRequestCallback fn) {
     return on(uri, HTTP_GET, fn);
 }
 
-PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, PsychicJsonRequestCallback fn)
-{
+PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, PsychicJsonRequestCallback fn) {
     //these basic requests need a basic web handler
     PsychicJsonHandler *handler = new PsychicJsonHandler();
     handler->onRequest(fn);
@@ -188,25 +169,21 @@ PsychicEndpoint* PsychicHttpServer::on(const char* uri, http_method method, Psyc
     return on(uri, method, handler);
 }
 
-void PsychicHttpServer::onNotFound(PsychicHttpRequestCallback fn)
-{
+void PsychicHttpServer::onNotFound(PsychicHttpRequestCallback fn) {
     PsychicWebHandler *handler = new PsychicWebHandler();
     handler->onRequest(fn);
 
     this->defaultEndpoint->setHandler(handler);
 }
 
-esp_err_t PsychicHttpServer::notFoundHandler(httpd_req_t *req, httpd_err_code_t err)
-{
+esp_err_t PsychicHttpServer::notFoundHandler(httpd_req_t *req, httpd_err_code_t err) {
     PsychicHttpServer *server = (PsychicHttpServer*)httpd_get_global_user_ctx(req->handle);
     PsychicRequest request(server, req);
 
     //loop through our global handlers and see if anyone wants it
-    for(auto *handler: server->_handlers)
-    {
+    for (auto *handler: server->_handlers) {
         //are we capable of handling this?
-        if (handler->filter(&request) && handler->canHandle(&request))
-        {
+        if (handler->filter(&request) && handler->canHandle(&request)) {
             //check our credentials
             if (handler->needsAuthentication(&request))
                 return handler->authenticate(&request);
@@ -224,20 +201,17 @@ esp_err_t PsychicHttpServer::notFoundHandler(httpd_req_t *req, httpd_err_code_t 
     return ESP_ERR_HTTPD_INVALID_REQ;
 }
 
-esp_err_t PsychicHttpServer::defaultNotFoundHandler(PsychicRequest *request)
-{
+esp_err_t PsychicHttpServer::defaultNotFoundHandler(PsychicRequest *request) {
     request->reply(404, "text/html", "That URI does not exist.");
 
     return ESP_OK;
 }
 
-void PsychicHttpServer::onOpen(PsychicClientCallback handler)
-{
+void PsychicHttpServer::onOpen(PsychicClientCallback handler) {
     this->_onOpen = handler;
 }
 
-esp_err_t PsychicHttpServer::openCallback(httpd_handle_t hd, int sockfd)
-{
+esp_err_t PsychicHttpServer::openCallback(httpd_handle_t hd, int sockfd) {
     ESP_LOGI(PH_TAG, "New client connected %d", sockfd);
 
     //get our global server reference
@@ -245,8 +219,7 @@ esp_err_t PsychicHttpServer::openCallback(httpd_handle_t hd, int sockfd)
 
     //lookup our client
     PsychicClient *client = server->getClient(sockfd);
-    if (client == NULL)
-    {
+    if (client == NULL) {
         client = new PsychicClient(hd, sockfd);
         server->addClient(client);
     }
@@ -258,24 +231,20 @@ esp_err_t PsychicHttpServer::openCallback(httpd_handle_t hd, int sockfd)
     return ESP_OK;
 }
 
-void PsychicHttpServer::onClose(PsychicClientCallback handler)
-{
+void PsychicHttpServer::onClose(PsychicClientCallback handler) {
     this->_onClose = handler;
 }
 
-void PsychicHttpServer::closeCallback(httpd_handle_t hd, int sockfd)
-{
+void PsychicHttpServer::closeCallback(httpd_handle_t hd, int sockfd) {
     ESP_LOGI(PH_TAG, "Client disconnected %d", sockfd);
 
     PsychicHttpServer *server = (PsychicHttpServer*)httpd_get_global_user_ctx(hd);
 
     //lookup our client
     PsychicClient *client = server->getClient(sockfd);
-    if (client != NULL)
-    {
+    if (client != NULL) {
         //give our handlers a chance to handle a disconnect first
-        for (PsychicEndpoint * endpoint : server->_endpoints)
-        {
+        for (PsychicEndpoint * endpoint : server->_endpoints) {
             PsychicHandler *handler = endpoint->handler();
             handler->checkForClosedClient(client);
         }
@@ -286,35 +255,30 @@ void PsychicHttpServer::closeCallback(httpd_handle_t hd, int sockfd)
 
         //remove it from our list
         server->removeClient(client);
-    }
-    else
+    } else
         ESP_LOGE(PH_TAG, "No client record %d", sockfd);
 
     //finally close it out.
     close(sockfd);
 }
 
-PsychicStaticFileHandler* PsychicHttpServer::serveStatic(const char* uri, fs::FS& fs, const char* path, const char* cache_control)
-{
+PsychicStaticFileHandler* PsychicHttpServer::serveStatic(const char* uri, fs::FS& fs, const char* path, const char* cache_control) {
     PsychicStaticFileHandler* handler = new PsychicStaticFileHandler(uri, fs, path, cache_control);
     this->addHandler(handler);
 
     return handler;
 }
 
-void PsychicHttpServer::addClient(PsychicClient *client)
-{
+void PsychicHttpServer::addClient(PsychicClient *client) {
     _clients.push_back(client);
 }
 
-void PsychicHttpServer::removeClient(PsychicClient *client)
-{
+void PsychicHttpServer::removeClient(PsychicClient *client) {
     _clients.remove(client);
     delete client;
 }
 
-PsychicClient * PsychicHttpServer::getClient(int socket)
-{
+PsychicClient * PsychicHttpServer::getClient(int socket) {
     for (PsychicClient * client : _clients)
         if (client->socket() == socket)
             return client;
@@ -322,58 +286,45 @@ PsychicClient * PsychicHttpServer::getClient(int socket)
     return NULL;
 }
 
-PsychicClient * PsychicHttpServer::getClient(httpd_req_t *req)
-{
+PsychicClient * PsychicHttpServer::getClient(httpd_req_t *req) {
     return getClient(httpd_req_to_sockfd(req));
 }
 
-bool PsychicHttpServer::hasClient(int socket)
-{
+bool PsychicHttpServer::hasClient(int socket) {
     return getClient(socket) != NULL;
 }
 
-const std::list<PsychicClient*>& PsychicHttpServer::getClientList()
-{
+const std::list<PsychicClient*>& PsychicHttpServer::getClientList() {
     return _clients;
 }
 
-bool ON_STA_FILTER(PsychicRequest *request)
-{
+bool ON_STA_FILTER(PsychicRequest *request) {
     return WiFi.localIP() == request->client()->localIP();
 }
 
-bool ON_AP_FILTER(PsychicRequest *request)
-{
+bool ON_AP_FILTER(PsychicRequest *request) {
     return WiFi.softAPIP() == request->client()->localIP();
 }
 
-String urlDecode(const char* encoded)
-{
+String urlDecode(const char* encoded) {
     size_t length = strlen(encoded);
     char* decoded = (char*)malloc(length + 1);
-    if (!decoded)
-    {
+    if (!decoded) {
         return "";
     }
 
     size_t i, j = 0;
-    for (i = 0; i < length; ++i)
-    {
-        if (encoded[i] == '%' && isxdigit(encoded[i + 1]) && isxdigit(encoded[i + 2]))
-        {
+    for (i = 0; i < length; ++i) {
+        if (encoded[i] == '%' && isxdigit(encoded[i + 1]) && isxdigit(encoded[i + 2])) {
             // Valid percent-encoded sequence
             int hex;
             sscanf(encoded + i + 1, "%2x", &hex);
             decoded[j++] = (char)hex;
             i += 2;  // Skip the two hexadecimal characters
-        }
-        else if (encoded[i] == '+')
-        {
+        } else if (encoded[i] == '+') {
             // Convert '+' to space
             decoded[j++] = ' ';
-        }
-        else
-        {
+        } else {
             // Copy other characters as they are
             decoded[j++] = encoded[i];
         }

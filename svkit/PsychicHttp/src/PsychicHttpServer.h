@@ -9,9 +9,8 @@ class PsychicEndpoint;
 class PsychicHandler;
 class PsychicStaticFileHandler;
 
-class PsychicHttpServer
-{
-protected:
+class PsychicHttpServer {
+  protected:
     bool _use_ssl = false;
     std::list<PsychicEndpoint*> _endpoints;
     std::list<PsychicHandler*> _handlers;
@@ -23,7 +22,7 @@ protected:
     esp_err_t _start();
     virtual esp_err_t _startServer();
 
-public:
+  public:
     PsychicHttpServer();
     ~PsychicHttpServer();
 
@@ -51,8 +50,7 @@ public:
     PsychicClient* getClient(int socket);
     PsychicClient* getClient(httpd_req_t *req);
     bool hasClient(int socket);
-    int count()
-    {
+    int count() {
         return _clients.size();
     };
     const std::list<PsychicClient*>& getClientList();

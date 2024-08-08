@@ -14,9 +14,8 @@ typedef std::function<esp_err_t(PsychicRequest *request, const String& filename,
 * HANDLER :: Can be attached to any endpoint or as a generic request handler.
 */
 
-class PsychicUploadHandler : public PsychicWebHandler
-{
-protected:
+class PsychicUploadHandler : public PsychicWebHandler {
+  protected:
     PsychicUploadCallback _uploadCallback;
 
     PsychicRequest *_request;
@@ -42,7 +41,7 @@ protected:
     void _handleUploadByte(uint8_t data, bool last);
     void _parseMultipartPostByte(uint8_t data, bool last);
 
-public:
+  public:
     PsychicUploadHandler();
     ~PsychicUploadHandler();
 
@@ -52,8 +51,7 @@ public:
     PsychicUploadHandler * onUpload(PsychicUploadCallback fn);
 };
 
-enum
-{
+enum {
     EXPECT_BOUNDARY,
     PARSE_HEADERS,
     WAIT_FOR_RETURN1,
