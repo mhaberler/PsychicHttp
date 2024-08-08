@@ -10,13 +10,14 @@
 * HANDLER :: Can be attached to any endpoint or as a generic request handler.
 */
 
-class PsychicWebHandler : public PsychicHandler {
-  protected:
+class PsychicWebHandler : public PsychicHandler
+{
+protected:
     PsychicHttpRequestCallback _requestCallback;
     PsychicClientCallback _onOpen;
     PsychicClientCallback _onClose;
 
-  public:
+public:
     PsychicWebHandler();
     ~PsychicWebHandler();
 

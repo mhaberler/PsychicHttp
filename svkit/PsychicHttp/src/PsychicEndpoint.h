@@ -6,19 +6,20 @@
 class PsychicHandler;
 
 #ifdef ENABLE_ASYNC
-    #include "async_worker.h"
+#include "async_worker.h"
 #endif
 
-class PsychicEndpoint {
+class PsychicEndpoint
+{
     friend PsychicHttpServer;
 
-  private:
+private:
     PsychicHttpServer *_server;
     String _uri;
     http_method _method;
     PsychicHandler *_handler;
 
-  public:
+public:
     PsychicEndpoint();
     PsychicEndpoint(PsychicHttpServer *server, http_method method, const char * uri);
 

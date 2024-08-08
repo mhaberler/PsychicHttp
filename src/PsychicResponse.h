@@ -6,8 +6,9 @@
 
 class PsychicRequest;
 
-class PsychicResponse {
-  protected:
+class PsychicResponse
+{
+protected:
     PsychicRequest *_request;
 
     int _code;
@@ -16,17 +17,19 @@ class PsychicResponse {
     int64_t _contentLength;
     const char * _body;
 
-  public:
+public:
     PsychicResponse(PsychicRequest *request);
     virtual ~PsychicResponse();
 
     void setCode(int code);
 
     void setContentType(const char *contentType);
-    void setContentLength(int64_t contentLength) {
+    void setContentLength(int64_t contentLength)
+    {
         _contentLength = contentLength;
     }
-    int64_t getContentLength(int64_t contentLength) {
+    int64_t getContentLength(int64_t contentLength)
+    {
         return _contentLength;
     }
 

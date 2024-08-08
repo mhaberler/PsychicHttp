@@ -11,8 +11,9 @@ class PsychicWebSocketClient;
 typedef std::function<void(PsychicWebSocketClient *client)> PsychicWebSocketClientCallback;
 typedef std::function<esp_err_t(PsychicWebSocketRequest *request, httpd_ws_frame *frame)> PsychicWebSocketFrameCallback;
 
-class PsychicWebSocketClient : public PsychicClient {
-  public:
+class PsychicWebSocketClient : public PsychicClient
+{
+public:
     PsychicWebSocketClient(PsychicClient *client);
     ~PsychicWebSocketClient();
 
@@ -21,11 +22,12 @@ class PsychicWebSocketClient : public PsychicClient {
     esp_err_t sendMessage(const char *buf);
 };
 
-class PsychicWebSocketRequest : public PsychicRequest {
-  private:
+class PsychicWebSocketRequest : public PsychicRequest
+{
+private:
     PsychicWebSocketClient _client;
 
-  public:
+public:
     PsychicWebSocketRequest(PsychicRequest *req);
     virtual ~PsychicWebSocketRequest();
 
@@ -36,13 +38,14 @@ class PsychicWebSocketRequest : public PsychicRequest {
     esp_err_t reply(const char *buf);
 };
 
-class PsychicWebSocketHandler : public PsychicHandler {
-  protected:
+class PsychicWebSocketHandler : public PsychicHandler
+{
+protected:
     PsychicWebSocketClientCallback _onOpen;
     PsychicWebSocketFrameCallback _onFrame;
     PsychicWebSocketClientCallback _onClose;
 
-  public:
+public:
     PsychicWebSocketHandler();
     ~PsychicWebSocketHandler();
 

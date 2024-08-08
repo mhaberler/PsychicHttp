@@ -2,7 +2,8 @@
 
 #ifdef ARDUINOJSON_6_COMPATIBILITY
 PsychicJsonResponse::PsychicJsonResponse(PsychicRequest *request, bool isArray, size_t maxJsonBufferSize) : PsychicResponse(request),
-    _jsonBuffer(maxJsonBufferSize) {
+    _jsonBuffer(maxJsonBufferSize)
+{
     setContentType(JSON_MIMETYPE);
     if (isArray)
         _root = _jsonBuffer.createNestedArray();
@@ -10,7 +11,8 @@ PsychicJsonResponse::PsychicJsonResponse(PsychicRequest *request, bool isArray, 
         _root = _jsonBuffer.createNestedObject();
 }
 #else
-PsychicJsonResponse::PsychicJsonResponse(PsychicRequest *request, bool isArray) : PsychicResponse(request) {
+PsychicJsonResponse::PsychicJsonResponse(PsychicRequest *request, bool isArray) : PsychicResponse(request)
+{
     setContentType(JSON_MIMETYPE);
     if (isArray)
         _root = _jsonBuffer.add<JsonArray>();
@@ -19,15 +21,18 @@ PsychicJsonResponse::PsychicJsonResponse(PsychicRequest *request, bool isArray) 
 }
 #endif
 
-JsonVariant &PsychicJsonResponse::getRoot() {
+JsonVariant &PsychicJsonResponse::getRoot()
+{
     return _root;
 }
 
-size_t PsychicJsonResponse::getLength() {
+size_t PsychicJsonResponse::getLength()
+{
     return measureJson(_root);
 }
 
-esp_err_t PsychicJsonResponse::send() {
+esp_err_t PsychicJsonResponse::send()
+{
     esp_err_t err = ESP_OK;
     size_t length = getLength();
     size_t buffer_size;
@@ -44,13 +49,15 @@ esp_err_t PsychicJsonResponse::send() {
     // DUMP(buffer_size);
 
     buffer = (char *)malloc(buffer_size);
-    if (buffer == NULL) {
+    if (buffer == NULL)
+    {
         httpd_resp_send_err(this->_request->request(), HTTPD_500_INTERNAL_SERVER_ERROR, "Unable to allocate memory.");
         return ESP_FAIL;
     }
 
     // send it in one shot or no?
-    if (length < JSON_BUFFER_SIZE) {
+    if (length < JSON_BUFFER_SIZE)
+    {
         // TRACE();
 
         serializeJson(_root, buffer, buffer_size);
@@ -59,7 +66,9 @@ esp_err_t PsychicJsonResponse::send() {
         this->setContentType(JSON_MIMETYPE);
 
         err = PsychicResponse::send();
-    } else {
+    }
+    else
+    {
         // helper class that acts as a stream to print chunked responses
         ChunkPrinter dest(this, (uint8_t *)buffer, buffer_size);
 
@@ -86,24 +95,29 @@ PsychicJsonHandler::PsychicJsonHandler(size_t maxJsonBufferSize) : _onRequest(NU
     _maxJsonBufferSize(maxJsonBufferSize) {};
 
 PsychicJsonHandler::PsychicJsonHandler(PsychicJsonRequestCallback onRequest, size_t maxJsonBufferSize) : _onRequest(onRequest),
-    _maxJsonBufferSize(maxJsonBufferSize) {
+    _maxJsonBufferSize(maxJsonBufferSize)
+{
 }
 #else
 PsychicJsonHandler::PsychicJsonHandler() : _onRequest(NULL) {};
 
-PsychicJsonHandler::PsychicJsonHandler(PsychicJsonRequestCallback onRequest) : _onRequest(onRequest) {
+PsychicJsonHandler::PsychicJsonHandler(PsychicJsonRequestCallback onRequest) : _onRequest(onRequest)
+{
 }
 #endif
 
-void PsychicJsonHandler::onRequest(PsychicJsonRequestCallback fn) {
+void PsychicJsonHandler::onRequest(PsychicJsonRequestCallback fn)
+{
     _onRequest = fn;
 }
 
-esp_err_t PsychicJsonHandler::handleRequest(PsychicRequest *request) {
+esp_err_t PsychicJsonHandler::handleRequest(PsychicRequest *request)
+{
     // process basic stuff
     PsychicWebHandler::handleRequest(request);
 
-    if (_onRequest) {
+    if (_onRequest)
+    {
 #ifdef ARDUINOJSON_6_COMPATIBILITY
         DynamicJsonDocument jsonBuffer(this->_maxJsonBufferSize);
         DeserializationError error = deserializeJson(jsonBuffer, request->body());
@@ -121,6 +135,7 @@ esp_err_t PsychicJsonHandler::handleRequest(PsychicRequest *request) {
 #endif
 
         return _onRequest(request, json);
-    } else
+    }
+    else
         return request->reply(500);
 }

@@ -30,10 +30,12 @@ PsychicEventSource::PsychicEventSource() :
     _onClose(NULL)
 {}
 
-PsychicEventSource::~PsychicEventSource() {
+PsychicEventSource::~PsychicEventSource()
+{
 }
 
-PsychicEventSourceClient * PsychicEventSource::getClient(int socket) {
+PsychicEventSourceClient * PsychicEventSource::getClient(int socket)
+{
     PsychicClient *client = PsychicHandler::getClient(socket);
 
     if (client == NULL)
@@ -42,20 +44,24 @@ PsychicEventSourceClient * PsychicEventSource::getClient(int socket) {
     return (PsychicEventSourceClient *)client->_friend;
 }
 
-PsychicEventSourceClient * PsychicEventSource::getClient(PsychicClient *client) {
+PsychicEventSourceClient * PsychicEventSource::getClient(PsychicClient *client)
+{
     return getClient(client->socket());
 }
 
-esp_err_t PsychicEventSource::handleRequest(PsychicRequest *request) {
+esp_err_t PsychicEventSource::handleRequest(PsychicRequest *request)
+{
     //start our open ended HTTP response
     PsychicEventSourceResponse response(request);
     esp_err_t err = response.send();
 
     //lookup our client
     PsychicClient *client = checkForNewClient(request->client());
-    if (client->isNew) {
+    if (client->isNew)
+    {
         //did we get our last id?
-        if(request->hasHeader("Last-Event-ID")) {
+        if(request->hasHeader("Last-Event-ID"))
+        {
             PsychicEventSourceClient *buddy = getClient(client);
             buddy->_lastId = atoi(request->header("Last-Event-ID").c_str());
         }
@@ -67,30 +73,36 @@ esp_err_t PsychicEventSource::handleRequest(PsychicRequest *request) {
     return err;
 }
 
-PsychicEventSource * PsychicEventSource::onOpen(PsychicEventSourceClientCallback fn) {
+PsychicEventSource * PsychicEventSource::onOpen(PsychicEventSourceClientCallback fn)
+{
     _onOpen = fn;
     return this;
 }
 
-PsychicEventSource * PsychicEventSource::onClose(PsychicEventSourceClientCallback fn) {
+PsychicEventSource * PsychicEventSource::onClose(PsychicEventSourceClientCallback fn)
+{
     _onClose = fn;
     return this;
 }
 
-void PsychicEventSource::addClient(PsychicClient *client) {
+void PsychicEventSource::addClient(PsychicClient *client)
+{
     client->_friend = new PsychicEventSourceClient(client);
     PsychicHandler::addClient(client);
 }
 
-void PsychicEventSource::removeClient(PsychicClient *client) {
+void PsychicEventSource::removeClient(PsychicClient *client)
+{
     PsychicHandler::removeClient(client);
     delete (PsychicEventSourceClient*)client->_friend;
     client->_friend = NULL;
 }
 
-void PsychicEventSource::openCallback(PsychicClient *client) {
+void PsychicEventSource::openCallback(PsychicClient *client)
+{
     PsychicEventSourceClient *buddy = getClient(client);
-    if (buddy == NULL) {
+    if (buddy == NULL)
+    {
         TRACE();
         return;
     }
@@ -99,9 +111,11 @@ void PsychicEventSource::openCallback(PsychicClient *client) {
         _onOpen(buddy);
 }
 
-void PsychicEventSource::closeCallback(PsychicClient *client) {
+void PsychicEventSource::closeCallback(PsychicClient *client)
+{
     PsychicEventSourceClient *buddy = getClient(client);
-    if (buddy == NULL) {
+    if (buddy == NULL)
+    {
         TRACE();
         return;
     }
@@ -110,9 +124,11 @@ void PsychicEventSource::closeCallback(PsychicClient *client) {
         _onClose(getClient(buddy));
 }
 
-void PsychicEventSource::send(const char *message, const char *event, uint32_t id, uint32_t reconnect) {
+void PsychicEventSource::send(const char *message, const char *event, uint32_t id, uint32_t reconnect)
+{
     String ev = generateEventMessage(message, event, id, reconnect);
-    for(PsychicClient *c : _clients) {
+    for(PsychicClient *c : _clients)
+    {
         ((PsychicEventSourceClient*)c->_friend)->sendEvent(ev.c_str());
     }
 }
@@ -123,22 +139,28 @@ void PsychicEventSource::send(const char *message, const char *event, uint32_t i
 
 PsychicEventSourceClient::PsychicEventSourceClient(PsychicClient *client) :
     PsychicClient(client->server(), client->socket()),
-    _lastId(0) {
+    _lastId(0)
+{
 }
 
-PsychicEventSourceClient::~PsychicEventSourceClient() {
+PsychicEventSourceClient::~PsychicEventSourceClient()
+{
 }
 
-void PsychicEventSourceClient::send(const char *message, const char *event, uint32_t id, uint32_t reconnect) {
+void PsychicEventSourceClient::send(const char *message, const char *event, uint32_t id, uint32_t reconnect)
+{
     String ev = generateEventMessage(message, event, id, reconnect);
     sendEvent(ev.c_str());
 }
 
-void PsychicEventSourceClient::sendEvent(const char *event) {
+void PsychicEventSourceClient::sendEvent(const char *event)
+{
     int result;
-    do {
+    do
+    {
         result = httpd_socket_send(this->server(), this->socket(), event, strlen(event), 0);
-    } while (result == HTTPD_SOCK_ERR_TIMEOUT);
+    }
+    while (result == HTTPD_SOCK_ERR_TIMEOUT);
 
     //if (result < 0)
     //error log here
@@ -149,10 +171,12 @@ void PsychicEventSourceClient::sendEvent(const char *event) {
 /*****************************************/
 
 PsychicEventSourceResponse::PsychicEventSourceResponse(PsychicRequest *request)
-    : PsychicResponse(request) {
+    : PsychicResponse(request)
+{
 }
 
-esp_err_t PsychicEventSourceResponse::send() {
+esp_err_t PsychicEventSourceResponse::send()
+{
 
     //build our main header
     String out = String();
@@ -169,9 +193,11 @@ esp_err_t PsychicEventSourceResponse::send() {
     out.concat("\r\n");
 
     int result;
-    do {
+    do
+    {
         result = httpd_send(_request->request(), out.c_str(), out.length());
-    } while (result == HTTPD_SOCK_ERR_TIMEOUT);
+    }
+    while (result == HTTPD_SOCK_ERR_TIMEOUT);
 
     if (result < 0)
         ESP_LOGE(PH_TAG, "EventSource send failed with %s", esp_err_to_name(result));
@@ -186,28 +212,33 @@ esp_err_t PsychicEventSourceResponse::send() {
 // Event Message Generator
 /*****************************************/
 
-String generateEventMessage(const char *message, const char *event, uint32_t id, uint32_t reconnect) {
+String generateEventMessage(const char *message, const char *event, uint32_t id, uint32_t reconnect)
+{
     String ev = "";
 
-    if(reconnect) {
+    if(reconnect)
+    {
         ev += "retry: ";
         ev += String(reconnect);
         ev += "\r\n";
     }
 
-    if(id) {
+    if(id)
+    {
         ev += "id: ";
         ev += String(id);
         ev += "\r\n";
     }
 
-    if(event != NULL) {
+    if(event != NULL)
+    {
         ev += "event: ";
         ev += String(event);
         ev += "\r\n";
     }
 
-    if(message != NULL) {
+    if(message != NULL)
+    {
         ev += "data: ";
         ev += String(message);
         ev += "\r\n";

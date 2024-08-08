@@ -7,12 +7,13 @@
 * PsychicClient :: Generic wrapper around the ESP-IDF socket
 */
 
-class PsychicClient {
-  protected:
+class PsychicClient
+{
+protected:
     httpd_handle_t _server;
     int _socket;
 
-  public:
+public:
     PsychicClient(httpd_handle_t server, int socket);
     ~PsychicClient();
 
@@ -22,7 +23,8 @@ class PsychicClient {
 
     bool isNew = false;
 
-    bool operator==(PsychicClient& rhs) const {
+    bool operator==(PsychicClient& rhs) const
+    {
         return _socket == rhs.socket();
     }
 

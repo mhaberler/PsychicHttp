@@ -11,10 +11,11 @@ class PsychicHttpServer;
 * HANDLER :: Can be attached to any endpoint or as a generic request handler.
 */
 
-class PsychicHandler {
+class PsychicHandler
+{
     friend PsychicEndpoint;
 
-  protected:
+protected:
     PsychicRequestFilterFunction _filter;
     PsychicHttpServer *_server;
 
@@ -26,7 +27,7 @@ class PsychicHandler {
 
     std::list<PsychicClient*> _clients;
 
-  public:
+public:
     PsychicHandler();
     ~PsychicHandler();
 
@@ -37,7 +38,8 @@ class PsychicHandler {
     bool needsAuthentication(PsychicRequest *request);
     esp_err_t authenticate(PsychicRequest *request);
 
-    virtual bool isWebSocket() {
+    virtual bool isWebSocket()
+    {
         return false;
     };
 
@@ -52,13 +54,15 @@ class PsychicHandler {
     virtual void closeCallback(PsychicClient *client) {};
 
     bool hasClient(PsychicClient *client);
-    int count() {
+    int count()
+    {
         return _clients.size();
     };
     const std::list<PsychicClient*>& getClientList();
 
     //derived classes must implement these functions
-    virtual bool canHandle(PsychicRequest *request) {
+    virtual bool canHandle(PsychicRequest *request)
+    {
         return true;
     };
     virtual esp_err_t handleRequest(PsychicRequest *request) = 0;

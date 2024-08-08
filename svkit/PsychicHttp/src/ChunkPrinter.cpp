@@ -8,15 +8,18 @@ ChunkPrinter::ChunkPrinter(PsychicResponse *response, uint8_t *buffer, size_t le
     _pos(0)
 {}
 
-ChunkPrinter::~ChunkPrinter() {
+ChunkPrinter::~ChunkPrinter()
+{
     flush();
 }
 
-size_t ChunkPrinter::write(uint8_t c) {
+size_t ChunkPrinter::write(uint8_t c)
+{
     esp_err_t err;
 
     //if we're full, send a chunk
-    if (_pos == _length) {
+    if (_pos == _length)
+    {
         _pos = 0;
         err = _response->sendChunk(_buffer, _length);
 
@@ -29,18 +32,21 @@ size_t ChunkPrinter::write(uint8_t c) {
     return 1;
 }
 
-size_t ChunkPrinter::write(const uint8_t *buffer, size_t size) {
+size_t ChunkPrinter::write(const uint8_t *buffer, size_t size)
+{
     esp_err_t err;
     size_t written = 0;
 
-    while (written < size) {
+    while (written < size)
+    {
         size_t space = _length - _pos;
         size_t blockSize = std::min(space, size - written);
 
         memcpy(_buffer + _pos, buffer + written, blockSize);
         _pos += blockSize;
 
-        if (_pos == _length) {
+        if (_pos == _length)
+        {
             _pos = 0;
 
             if (_response->sendChunk(_buffer, _length) != ESP_OK)
@@ -51,19 +57,24 @@ size_t ChunkPrinter::write(const uint8_t *buffer, size_t size) {
     return written;
 }
 
-void ChunkPrinter::flush() {
-    if (_pos) {
+void ChunkPrinter::flush()
+{
+    if (_pos)
+    {
         _response->sendChunk(_buffer, _pos);
         _pos = 0;
     }
 }
 
-size_t ChunkPrinter::copyFrom(Stream &stream) {
+size_t ChunkPrinter::copyFrom(Stream &stream)
+{
     size_t count = 0;
 
-    while (stream.available()) {
+    while (stream.available())
+    {
 
-        if (_pos == _length) {
+        if (_pos == _length)
+        {
             _response->sendChunk(_buffer, _length);
             _pos = 0;
         }

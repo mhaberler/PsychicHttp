@@ -1,6 +1,7 @@
 #include "PsychicHttpsServer.h"
 
-PsychicHttpsServer::PsychicHttpsServer() : PsychicHttpServer() {
+PsychicHttpsServer::PsychicHttpsServer() : PsychicHttpServer()
+{
     //for a SSL server
     ssl_config = HTTPD_SSL_CONFIG_DEFAULT();
     ssl_config.httpd.open_fn = PsychicHttpServer::openCallback;
@@ -19,7 +20,8 @@ PsychicHttpsServer::PsychicHttpsServer() : PsychicHttpServer() {
 
 PsychicHttpsServer::~PsychicHttpsServer() {}
 
-esp_err_t PsychicHttpsServer::listen(uint16_t port, const char *cert, const char *private_key) {
+esp_err_t PsychicHttpsServer::listen(uint16_t port, const char *cert, const char *private_key)
+{
     this->_use_ssl = true;
 
     this->ssl_config.port_secure = port;
@@ -31,14 +33,16 @@ esp_err_t PsychicHttpsServer::listen(uint16_t port, const char *cert, const char
     return this->_start();
 }
 
-esp_err_t PsychicHttpsServer::_startServer() {
+esp_err_t PsychicHttpsServer::_startServer()
+{
     if (this->_use_ssl)
         return httpd_ssl_start(&this->server, &this->ssl_config);
     else
         return httpd_start(&this->server, &this->config);
 }
 
-void PsychicHttpsServer::stop() {
+void PsychicHttpsServer::stop()
+{
     if (this->_use_ssl)
         httpd_ssl_stop(this->server);
     else

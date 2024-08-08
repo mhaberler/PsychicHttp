@@ -4,11 +4,13 @@
 
 
 PsychicFileResponse::PsychicFileResponse(PsychicRequest *request, FS &fs, const String& path, const String& contentType, bool download)
-    : PsychicResponse(request) {
+    : PsychicResponse(request)
+{
     //_code = 200;
     String _path(path);
 
-    if(!download && !fs.exists(_path) && fs.exists(_path+".gz")) {
+    if(!download && !fs.exists(_path) && fs.exists(_path+".gz"))
+    {
         _path = _path+".gz";
         addHeader("Content-Encoding", "gzip");
     }
@@ -25,10 +27,13 @@ PsychicFileResponse::PsychicFileResponse(PsychicRequest *request, FS &fs, const 
     char buf[26+path.length()-filenameStart];
     char* filename = (char*)path.c_str() + filenameStart;
 
-    if(download) {
+    if(download)
+    {
         // set filename and force download
         snprintf(buf, sizeof (buf), "attachment; filename=\"%s\"", filename);
-    } else {
+    }
+    else
+    {
         // set filename and force rendering
         snprintf(buf, sizeof (buf), "inline; filename=\"%s\"", filename);
     }
@@ -36,10 +41,12 @@ PsychicFileResponse::PsychicFileResponse(PsychicRequest *request, FS &fs, const 
 }
 
 PsychicFileResponse::PsychicFileResponse(PsychicRequest *request, File content, const String& path, const String& contentType, bool download)
-    : PsychicResponse(request) {
+    : PsychicResponse(request)
+{
     String _path(path);
 
-    if(!download && String(content.name()).endsWith(".gz") && !path.endsWith(".gz")) {
+    if(!download && String(content.name()).endsWith(".gz") && !path.endsWith(".gz"))
+    {
         addHeader("Content-Encoding", "gzip");
     }
 
@@ -55,20 +62,25 @@ PsychicFileResponse::PsychicFileResponse(PsychicRequest *request, File content, 
     char buf[26+path.length()-filenameStart];
     char* filename = (char*)path.c_str() + filenameStart;
 
-    if(download) {
+    if(download)
+    {
         snprintf(buf, sizeof (buf), "attachment; filename=\"%s\"", filename);
-    } else {
+    }
+    else
+    {
         snprintf(buf, sizeof (buf), "inline; filename=\"%s\"", filename);
     }
     addHeader("Content-Disposition", buf);
 }
 
-PsychicFileResponse::~PsychicFileResponse() {
+PsychicFileResponse::~PsychicFileResponse()
+{
     if(_content)
         _content.close();
 }
 
-void PsychicFileResponse::_setContentType(const String& path) {
+void PsychicFileResponse::_setContentType(const String& path)
+{
     const char *_contentType;
 
     if (path.endsWith(".html")) _contentType = "text/html";
@@ -94,12 +106,14 @@ void PsychicFileResponse::_setContentType(const String& path) {
     setContentType(_contentType);
 }
 
-esp_err_t PsychicFileResponse::send() {
+esp_err_t PsychicFileResponse::send()
+{
     esp_err_t err = ESP_OK;
 
     //just send small files directly
     size_t size = getContentLength();
-    if (size < FILE_CHUNK_SIZE) {
+    if (size < FILE_CHUNK_SIZE)
+    {
         uint8_t *buffer = (uint8_t *)malloc(size);
         int readSize = _content.readBytes((char *)buffer, size);
 
@@ -107,10 +121,13 @@ esp_err_t PsychicFileResponse::send() {
         err = PsychicResponse::send();
 
         free(buffer);
-    } else {
+    }
+    else
+    {
         /* Retrieve the pointer to scratch buffer for temporary storage */
         char *chunk = (char *)malloc(FILE_CHUNK_SIZE);
-        if (chunk == NULL) {
+        if (chunk == NULL)
+        {
             /* Respond with 500 Internal Server Error */
             httpd_resp_send_err(this->_request->request(), HTTPD_500_INTERNAL_SERVER_ERROR, "Unable to allocate memory.");
             return ESP_FAIL;
@@ -119,22 +136,26 @@ esp_err_t PsychicFileResponse::send() {
         this->sendHeaders();
 
         size_t chunksize;
-        do {
+        do
+        {
             /* Read file in chunks into the scratch buffer */
             chunksize = _content.readBytes(chunk, FILE_CHUNK_SIZE);
-            if (chunksize > 0) {
+            if (chunksize > 0)
+            {
                 err = this->sendChunk((uint8_t *)chunk, chunksize);
                 if (err != ESP_OK)
                     break;
             }
 
             /* Keep looping till the whole file is sent */
-        } while (chunksize != 0);
+        }
+        while (chunksize != 0);
 
         //keep track of our memory
         free(chunk);
 
-        if (err == ESP_OK) {
+        if (err == ESP_OK)
+        {
             ESP_LOGI(PH_TAG, "File sending complete");
             this->finishChunking();
         }
