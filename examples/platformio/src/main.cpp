@@ -13,10 +13,11 @@
  * PlatformIO -> Build Filesystem Image and then PlatformIO -> Upload Filesystem Image
  **********************************************************************************************/
 
-#include "_secret.h"
+#include "secret.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESPmDNS.h>
+#include <Esp.h>
 #include <LittleFS.h>
 #include <PsychicHttp.h>
 #include <WiFi.h>
@@ -243,6 +244,7 @@ bool setupSDCard()
 
 void setup()
 {
+  delay(3000);
   esp_log_level_set(PH_TAG, ESP_LOG_DEBUG);
   esp_log_level_set("httpd_uri", ESP_LOG_DEBUG);
 
@@ -713,7 +715,9 @@ void loop()
     eventSource.send(output, "millis", millis(), 0);
 
     lastUpdate = millis();
-  }
+
+    Serial.printf("free heap: %d, free PSRAM: %d\n", ESP.getFreeHeap(), ESP.getPsramSize());
+ }
 
   // just some dev code to test that starting / stopping the server works okay.
   // delay(5000);
