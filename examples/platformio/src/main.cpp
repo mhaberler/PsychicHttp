@@ -23,6 +23,10 @@
 #include <WiFi.h>
 #include <esp_sntp.h>
 
+#include "server.h"
+#include "shifting_buffer_proxy.h"
+#include <PicoMQTT.h>
+
 // #define this to enable SD card support
 #ifdef PSY_ENABLE_SDCARD
 
@@ -101,6 +105,11 @@ PsychicHttpServer server;
 #endif
 PsychicWebSocketHandler websocketHandler;
 PsychicEventSource eventSource;
+
+PsychicWebSocketProxy::Server websocket_handler([] { return new PsychicWebSocketProxy::ShiftingBufferProxy<1024>(); });
+
+::WiFiServer tcp_server(1883);
+PicoMQTT::Server mqtt(tcp_server, websocket_handler);
 
 // NTP server stuff
 const char* ntpServer1 = "pool.ntp.org";
@@ -697,13 +706,26 @@ void setup()
 
       return response.send();
     });
+    websocket_handler.setSubprotocol("mqtt");
 
+    server.on("/mqtt", &websocket_handler);
+    server.on("/hello", [](PsychicRequest* request) {
+      return request->reply(200, "text/plain", "Hello world!");
+    });
+
+    // Subscribe to a topic and attach a callback
+    mqtt.subscribe("picomqtt/#", [](const char* topic, const char* payload) {
+      // payload might be binary, but PicoMQTT guarantees that it's zero-terminated
+      Serial.printf("Received message in topic '%s': %s\n", topic, payload);
+    });
     server.begin();
+    mqtt.begin();
   }
 }
 
 unsigned long lastUpdate = 0;
 char output[60];
+uint32_t last, counter;
 
 void loop()
 {
@@ -715,10 +737,20 @@ void loop()
     eventSource.send(output, "millis", millis(), 0);
 
     lastUpdate = millis();
-
+  }
+  mqtt.loop();
+  if (millis() - last > 1000) {
     Serial.printf("free heap: %d, free PSRAM: %d\n", ESP.getFreeHeap(), ESP.getPsramSize());
- }
 
+    last = millis();
+    char buf[100];
+    itoa(counter++, buf, 10);
+    mqtt.publish("counter", buf);
+    itoa(ESP.getFreeHeap(), buf, 10);
+    mqtt.publish("freeheap", buf);
+    itoa(ESP.getPsramSize() - ESP.getFreePsram(), buf, 10);
+    mqtt.publish("psramusage", buf);
+  }
   // just some dev code to test that starting / stopping the server works okay.
   // delay(5000);
   // Serial.println("Stopping Server");
